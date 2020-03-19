@@ -1,6 +1,8 @@
 from typing import List
 
 import pandas as pd
+import datetime
+import numpy as np
 
 CONFIRMED_CASES_URL = f"https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data" \
                       f"/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv "
@@ -28,8 +30,8 @@ def poland_cases_by_date(day: int, month: int, year: int = 2020) -> int:
     :return: Number of cases on a given date as an integer
     """
     
-    # Your code goes here (remove pass)
-    pass
+    result = confirmed_cases.loc[confirmed_cases["Country/Region"]=="Poland"][f"{month}/{day}/{year%100}"].values[0]
+    return result
 
 
 def top5_countries_by_date(day: int, month: int, year: int = 2020) -> List[str]:
@@ -48,8 +50,9 @@ def top5_countries_by_date(day: int, month: int, year: int = 2020) -> List[str]:
     :return: A list of strings with the names of the coutires
     """
 
-    # Your code goes here (remove pass)
-    pass
+    date = f"{month}/{day}/{year%100}"
+    top5df = confirmed_cases[["Province/State", "Country/Region", date]].groupby(["Country/Region"]).max().sort_values(by=date,ascending=False).head(5)
+    return top5df.index.tolist()
 
 
 def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
@@ -68,5 +71,8 @@ def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
     :return: Number of countries/regions where the count has not changed in a day
     """
     
-    # Your code goes here (remove pass)
-    pass
+    d1 = datetime.date(year, month, day)
+    d2 = d1+datetime.timedelta(days=-1)
+    d1=d1.strftime('%m/%d/%y').lstrip("0").replace("/0", "/")
+    d2=d2.strftime('%m/%d/%y').lstrip("0").replace("/0", "/")
+    return confirmed_cases.loc[(confirmed_cases[d1]!=confirmed_cases[d2])].count()[1]
